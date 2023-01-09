@@ -8,7 +8,8 @@
         public string UserName { get; set; }
         public string Text { get; set; }
         public string DateTime { get; set; }
-
+        public int CountUsers { get; set; } = 0;
+        public List<string> ListUsersName { get; set; } = new List<string>();              
         public byte[] Serialize()
         {
             using (var m = new MemoryStream())
@@ -20,6 +21,12 @@
                     writer.Write(UserName);
                     writer.Write(Text);
                     writer.Write(DateTime);
+                    writer.Write(CountUsers);
+
+                    foreach (var name in ListUsersName)
+                    {
+                        writer.Write(name);
+                    }
                 }
                 return m.ToArray();
             }
@@ -36,6 +43,14 @@
                     message.UserName = reader.ReadString();
                     message.Text = reader.ReadString();
                     message.DateTime = reader.ReadString();
+                    message.CountUsers = reader.ReadInt32();
+
+                    for (int i = 0; i < message.CountUsers; i++)
+                    {
+                        message.ListUsersName.Add(reader.ReadString());
+                    }
+
+
                 }
             }
             return message;

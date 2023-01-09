@@ -32,7 +32,11 @@
             <Label DockPanel.Dock="Left">You name:</Label>
              <TextBox x:Name="nameTextBox" Padding="0,5" Margin="5,0"  Width="322"></TextBox>
         </DockPanel>
-        <TextBlock TextAlignment="Center" FontSize="18" DockPanel.Dock="Top">Chat History</TextBlock>
-        <ListBox x:Name="chatList" Margin="5"></ListBox>
+        <DockPanel Margin="5" DockPanel.Dock="Top">
+            <TextBlock TextAlignment="Center" FontSize="18" DockPanel.Dock="Left" Width="350">Chat History</TextBlock>
+            <TextBlock TextAlignment="Center" FontSize="15" DockPanel.Dock="Right">Users:</TextBlock>
+        </DockPanel>
+        <ListBox x:Name="chatList" Margin="5" Width="350"/>
+        <ListBox x:Name="lbUsers" Margin="3"></ListBox>
     </DockPanel>
 </Window>

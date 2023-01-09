@@ -4,17 +4,18 @@ using System.Net.Sockets;
 using System.Text;
 
 
-
 namespace server_app
 {
     public class ChatServer
     {
         private UdpClient client;
         private HashSet<IPEndPoint> members = new HashSet<IPEndPoint>();
-        private int countUser;
-        private bool userIsConnected = false;
-        private ChatMessage message = new ChatMessage {
-            //UserId = Guid.NewGuid().ToString(),
+        private int countConnectUsers;
+        private List<string> listUserNames = new List<string>();
+        private int countConnectUser;
+        private int countUsers;
+        private ChatMessage message = new ChatMessage
+        {
             MessageType = TypeMessage.Message
         };
         public ChatServer()
@@ -23,29 +24,50 @@ namespace server_app
         }
         public void Join(IPEndPoint endPoint, string userName)
         {
-            if (members.Count() < countUser)
+            if (members.Count() < countConnectUsers)
             {
-                members.Add(endPoint);
-                message.UserName = userName;
-                message.Text = "Entered the chat.";
-                message.DateTime = DateTime.Now.ToString();
-                SendMessage(message);
+                bool repeatNameUser = false;
+                foreach (var name in listUserNames)
+                {
+                    if (userName == name )
+                    {
+                        message.Text = "Enter a different name.";
+                        message.UserName = "Server";                        
+                        message.ListUsersName = listUserNames;
+                        message.DateTime = DateTime.Now.ToString();
+                        SendMessage(message, endPoint);
+                        repeatNameUser = true;
+                    }
+                }
+                if (!repeatNameUser)
+                {
+                    members.Add(endPoint);
+                    listUserNames.Add(userName);
+                    message.CountUsers =++countUsers;
+                    message.Text = "Entered the chat.";
+                    message.UserName = userName;
+                    message.ListUsersName = listUserNames;
+                    message.DateTime = DateTime.Now.ToString();                    
+                    SendMessage(message);
+                }
             }
             else {                
-                message.UserName = "Server";               
-                message.Text = "Exceeding the number of users.";
+                message.UserName = "Server";
+                message.CountUsers = 0;
+                message.Text = "Exceeding the number of users.";                
                 message.DateTime = DateTime.Now.ToString();
                 SendMessage(message, endPoint);
             }
         }
         public void Leave(IPEndPoint endPoint, string userName)
         {            
-            members.Remove(endPoint);
-            message.UserName = userName;
+            message.UserName = userName;            
             message.Text = "Logged out of the chat.";
             message.DateTime = DateTime.Now.ToString();
+            message.CountUsers = --countUsers;
             SendMessage(message);
-
+            members.Remove(endPoint);
+            listUserNames.Remove(userName);
         }
         public void SendMessage(ChatMessage message)
         {
@@ -60,8 +82,7 @@ namespace server_app
         public void SendMessage(ChatMessage message, IPEndPoint iPEndPoint)
         {
             //byte[] data = Encoding.UTF8.GetBytes(message);
-            byte[] data = message.Serialize();
-                       
+            byte[] data = message.Serialize();                       
             client.SendAsync(data, data.Length, iPEndPoint);           
         }
         public void Start()
@@ -69,25 +90,27 @@ namespace server_app
             IPEndPoint? clientEndPoint = null;
            
             Console.Write("Enter the maximum number of user =>");
-            countUser = int.Parse(Console.ReadLine());
+            countConnectUsers = int.Parse(Console.ReadLine());
             while (true)
             {
                 try
-                {
-                    userIsConnected = false;
+                {                    
                     Console.WriteLine("Waiting for a request...");
                     byte[] request = client.Receive(ref clientEndPoint);
                     //string message = Encoding.UTF8.GetString(request);
                     //ChatMessage chatMessage = new ChatMessage();
                     //string message = request;
 
-                    foreach (var member in members)
-                    {
-                        if (clientEndPoint == member)
-                            userIsConnected = true;
-                    }
+                    //foreach (var member in members)
+                    //{
+                    //    if (clientEndPoint == member)
+                    //        //userIsConnected = true;
+                    //}
 
                     var message = ChatMessage.Desserialize(request);
+                    message.ListUsersName = listUserNames;
+                    message.CountUsers = countUsers;
+
                     Console.WriteLine($"Got a message: {message.Text} from {message.UserName}  {message.DateTime}");
 
                     switch (message.MessageType)

@@ -1,6 +1,7 @@
 ﻿using Library;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -20,9 +21,6 @@ using System.Windows.Shapes;
 
 namespace client_app
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private ChatMessage chatMessage = new ChatMessage
@@ -32,16 +30,19 @@ namespace client_app
         };
         const string serverIp = "127.0.0.1";
         const int serverPort = 3344;
+                
+        private HashSet<IPEndPoint> members = new HashSet<IPEndPoint>();
 
         UdpClient client = new UdpClient();
         IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
 
         private bool isListening = false;
-        private bool isConnecting = false;   
+        //private bool isConnecting = false;   
 
         public MainWindow()
         {
             InitializeComponent();
+            btnSendMessage.IsEnabled = false;
         }
 
         private async void Listen()
@@ -53,9 +54,31 @@ namespace client_app
                     var response = await client.ReceiveAsync();
                     //string message = Encoding.UTF8.GetString(response.Buffer);
                     var message = ChatMessage.Desserialize(response.Buffer);
+                    chatList.Items.Add($"{message.UserName}: {message.Text}");
+                    chatList.Items.MoveCurrentToLast();
+                    chatList.ScrollIntoView(chatList.Items.CurrentItem);
 
-                    chatList.Items.Add($"{message.UserName}: {message.Text}  {message.DateTime} ");
-                    if (message.Text == "Exceeding the number of users.")
+                    lbUsers.Items.Clear();
+                    foreach (var item in message.ListUsersName)
+                    {
+                        lbUsers.Items.Add(item);
+                    }
+
+                    //chatList.Items.Add($"{message.UserName}: {message.Text}  {message.DateTime} ");
+                    //if (message.Text == "Entered the chat.")
+                    //{
+                    //    usersList.Items.Add(message.UserName);
+                    //}
+
+                    if (message.Text == "Entered the chat." && message.UserName == chatMessage.UserName)
+                    {
+                        btnSendMessage.IsEnabled = true;
+                    }
+                    if (message.Text == "Exceeding the number of users." && message.UserName == chatMessage.UserName)
+                    {
+                        btnSendMessage.IsEnabled = false;
+                    }
+                    if (message.Text == "Logged out of the chat." && message.UserName == chatMessage.UserName)
                     {
                         btnSendMessage.IsEnabled = false;
                     }
@@ -77,36 +100,39 @@ namespace client_app
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-            }
-            
+            }            
         }
         private void JoinMenuClick(object sender, RoutedEventArgs e)
         {
-            btnSendMessage.IsEnabled = true;
-            chatMessage.UserName = nameTextBox.Text;
-            chatMessage.MessageType = TypeMessage.Login;
-            chatMessage.Text = "Add new user";
-            chatMessage.DateTime = DateTime.Now.ToString();
-            SendMessage(chatMessage);
-
-            if (!isListening)
+            if (nameTextBox.Text != "")
             {
-                isListening = true;
-                Listen();
+                //btnSendMessage.IsEnabled = true;
+                chatMessage.UserName = nameTextBox.Text;
+                chatMessage.MessageType = TypeMessage.Login;
+                chatMessage.ListUsersName.Add(nameTextBox.Text);
+                chatMessage.Text = "Add new user";
+                chatMessage.DateTime = DateTime.Now.ToString();
+                SendMessage(chatMessage);
+                if (!isListening)
+                {
+                    isListening = true;
+                    Listen();
+                }
             }
+            else
+                MessageBox.Show("You did not enter  a name");
         }
         private void LeaveMenuClick(object sender, RoutedEventArgs e)
         {
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.MessageType = TypeMessage.Logout;
-            chatMessage.Text = "<leave>";
+            chatMessage.Text = "Leave.";
             chatMessage.UserName = nameTextBox.Text;
             chatMessage.DateTime = DateTime.Now.ToString();
             SendMessage(chatMessage);
             isListening = false;
-            isConnecting = false;
+            //isConnecting = false;
             btnSendMessage.IsEnabled = false;
-
         }
         private void SendBtnClick(object sender, RoutedEventArgs e)
         {
@@ -126,11 +152,11 @@ namespace client_app
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (isConnecting)
+            if (isListening)
             {
                 ChatMessage chatMessage = new ChatMessage();
                 chatMessage.MessageType = TypeMessage.Logout;
-                chatMessage.Text = "<leave>";
+                chatMessage.Text = "Leave.";
                 chatMessage.UserName = nameTextBox.Text;
                 chatMessage.DateTime = DateTime.Now.ToString();
                 SendMessage(chatMessage);
