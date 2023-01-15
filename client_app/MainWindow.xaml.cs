@@ -54,7 +54,7 @@ namespace client_app
                     var response = await client.ReceiveAsync();
                     //string message = Encoding.UTF8.GetString(response.Buffer);
                     var message = ChatMessage.Desserialize(response.Buffer);
-                    chatList.Items.Add($"{message.UserName}: {message.Text}");
+                    chatList.Items.Add($"{message.UserName}: {message.Text}  {message.DateTime} ");
                     chatList.Items.MoveCurrentToLast();
                     chatList.ScrollIntoView(chatList.Items.CurrentItem);
 
@@ -93,6 +93,12 @@ namespace client_app
         {           
             try
             {
+                //if (lbUsers.Items.Count > 0 || lbUsers.SelectedValue.ToString != null)
+                //{
+                //    MessageBox.Show(lbUsers.SelectedItem.ToString());        //for send message only one user
+
+                //}
+
                 //byte[] data = Encoding.UTF8.GetBytes(message);
                 byte[] data = message.Serialize();
                 client.SendAsync(data, data.Length, serverEndPoint);
@@ -111,7 +117,7 @@ namespace client_app
                 chatMessage.MessageType = TypeMessage.Login;
                 chatMessage.ListUsersName.Add(nameTextBox.Text);
                 chatMessage.Text = "Add new user";
-                chatMessage.DateTime = DateTime.Now.ToString();
+                chatMessage.DateTime = DateTime.Now.ToString("HH/mm");
                 SendMessage(chatMessage);
                 if (!isListening)
                 {
@@ -128,7 +134,7 @@ namespace client_app
             chatMessage.MessageType = TypeMessage.Logout;
             chatMessage.Text = "Leave.";
             chatMessage.UserName = nameTextBox.Text;
-            chatMessage.DateTime = DateTime.Now.ToString();
+            chatMessage.DateTime = DateTime.Now.ToString("HH/mm");
             SendMessage(chatMessage);
             isListening = false;
             //isConnecting = false;
@@ -140,7 +146,7 @@ namespace client_app
             chatMessage.MessageType = TypeMessage.Message;
             chatMessage.Text = msgTextBox.Text;
             chatMessage.UserName = nameTextBox.Text;
-            chatMessage.DateTime = DateTime.Now.ToString();
+            chatMessage.DateTime = DateTime.Now.ToString("HH/mm");
 
             if (string.IsNullOrWhiteSpace(chatMessage.Text)) return;
 
@@ -158,7 +164,7 @@ namespace client_app
                 chatMessage.MessageType = TypeMessage.Logout;
                 chatMessage.Text = "Leave.";
                 chatMessage.UserName = nameTextBox.Text;
-                chatMessage.DateTime = DateTime.Now.ToString();
+                chatMessage.DateTime = DateTime.Now.ToString("HH/mm");
                 SendMessage(chatMessage);
                 isListening = false;
             }

@@ -47,7 +47,7 @@ namespace server_app
                     message.Text = "Entered the chat.";
                     message.UserName = userName;
                     message.ListUsersName = listUserNames;
-                    message.DateTime = DateTime.Now.ToString();                    
+                    message.DateTime = DateTime.Now.ToString("HH/mm");                    
                     SendMessage(message);
                 }
             }
@@ -55,7 +55,7 @@ namespace server_app
                 message.UserName = "Server";
                 message.CountUsers = 0;
                 message.Text = "Exceeding the number of users.";                
-                message.DateTime = DateTime.Now.ToString();
+                message.DateTime = DateTime.Now.ToString("HH/mm");
                 SendMessage(message, endPoint);
             }
         }
@@ -63,7 +63,7 @@ namespace server_app
         {            
             message.UserName = userName;            
             message.Text = "Logged out of the chat.";
-            message.DateTime = DateTime.Now.ToString();
+            message.DateTime = DateTime.Now.ToString("HH/mm");
             message.CountUsers = --countUsers;
             SendMessage(message);
             members.Remove(endPoint);
