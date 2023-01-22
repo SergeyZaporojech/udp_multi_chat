@@ -64,11 +64,11 @@ namespace client_app
                         lbUsers.Items.Add(item);
                     }
 
-                    //chatList.Items.Add($"{message.UserName}: {message.Text}  {message.DateTime} ");
-                    //if (message.Text == "Entered the chat.")
-                    //{
-                    //    usersList.Items.Add(message.UserName);
-                    //}
+                        //chatList.Items.Add($"{message.UserName}: {message.Text}  {message.DateTime} ");
+                        //if (message.Text == "Entered the chat.")
+                        //{
+                        //    usersList.Items.Add(message.UserName);
+                        //}
 
                     if (message.Text == "Entered the chat." && message.UserName == chatMessage.UserName)
                     {

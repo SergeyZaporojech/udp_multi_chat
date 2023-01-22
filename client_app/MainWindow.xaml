@@ -5,16 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:client_app"
         mc:Ignorable="d"
-        Title="MainWindow" Height="309" Width="440" Closing="Window_Closing">
+        Title="MainWindow" Height="538" Width="637" Closing="Window_Closing"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+     TextElement.FontWeight="Regular"
+     TextElement.FontSize="13"
+     TextOptions.TextFormattingMode="Ideal"
+     TextOptions.TextRenderingMode="Auto"
+     FontFamily="{DynamicResource MaterialDesignFont}" Background="#FF98BAE8">
+
     <DockPanel>
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="Join" Click="JoinMenuClick"></MenuItem>
-            <MenuItem Header="Leave" Click="LeaveMenuClick"></MenuItem>
-            <MenuItem Header="About" Click="AboutMenuClick"></MenuItem>
+        <Menu DockPanel.Dock="Top" FontSize="12" Background="#FFB0BFB0"   >
+            <MenuItem Header="Join" Click="JoinMenuClick" Height="25" Width="80"></MenuItem>
+            <MenuItem Header="Leave" Click="LeaveMenuClick" Height="25" Width="95"></MenuItem>
+            <MenuItem Header="About" Click="AboutMenuClick" Height="25" Width="100"></MenuItem>
         </Menu>
-        <DockPanel Margin="5" DockPanel.Dock="Bottom">
-            <Label DockPanel.Dock="Left">Message:</Label>
-            <Button x:Name="btnSendMessage" Click="SendBtnClick" Padding="10,5" DockPanel.Dock="Right" Content="Send">
+        <DockPanel Margin="10,10,10,10" DockPanel.Dock="Bottom">
+            <Label DockPanel.Dock="Left" VerticalAlignment="Center" FontSize="15">Message:</Label>
+            <!--<Button x:Name="btnSendMessage" Click="SendBtnClick" Padding="10,5" DockPanel.Dock="Right" Content="Send">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="IsEnabled" Value="True" />
@@ -25,18 +33,26 @@
                         </Style.Triggers>
                     </Style>
                 </Button.Style>
+            </Button>-->
+            <TextBox x:Name="msgTextBox" Padding="0,5" Margin="5,0" VerticalContentAlignment="Center" Width="410" HorizontalAlignment="Left" FontSize="15"/>
+
+            <Button x:Name="btnSendMessage"  Click="SendBtnClick" 
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                    ToolTip="MaterialDesignFloatingActionMiniLightButton" Height="42" Width="42" HorizontalAlignment="Left" Background="#FF5363EC" VerticalAlignment="Center" Margin="25,0,0,0">
+                <materialDesign:PackIcon Kind="Send" Height="23" Width="21" />
             </Button>
-            <TextBox x:Name="msgTextBox" Padding="0,5" Margin="5,0" VerticalContentAlignment="Center"></TextBox>
         </DockPanel>
         <DockPanel Margin="5" DockPanel.Dock="Top">
-            <Label DockPanel.Dock="Left">You name:</Label>
-             <TextBox x:Name="nameTextBox" Padding="0,5" Margin="5,0"  Width="322"></TextBox>
+            <Label DockPanel.Dock="Left" FontSize="15">You name:</Label>
+            <TextBox x:Name="nameTextBox" Padding="0,5" Margin="25,0,10,0"  Width="188" HorizontalAlignment="Left" FontSize="15"/>
         </DockPanel>
         <DockPanel Margin="5" DockPanel.Dock="Top">
-            <TextBlock TextAlignment="Center" FontSize="18" DockPanel.Dock="Left" Width="350">Chat History</TextBlock>
-            <TextBlock TextAlignment="Center" FontSize="15" DockPanel.Dock="Right">Users:</TextBlock>
+            <TextBlock TextAlignment="Center" FontSize="15" DockPanel.Dock="Left" Width="455">Chat History</TextBlock>
+            <TextBlock FontSize="15" DockPanel.Dock="Right" TextAlignment="Center" Width="98" HorizontalAlignment="Left" Margin="15,0,0,0"><Run Text="Users:"/></TextBlock>
         </DockPanel>
-        <ListBox x:Name="chatList" Margin="5" Width="350"/>
-        <ListBox x:Name="lbUsers" Margin="3"></ListBox>
+        <ListBox x:Name="chatList" Margin="25,5,5,5" Width="434" Background="#FFBAD0B4"/>
+        <ListBox x:Name="lbUsers" Margin="3" Width="102"/>
     </DockPanel>
+
 </Window>
